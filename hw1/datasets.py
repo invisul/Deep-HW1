@@ -17,11 +17,8 @@ def random_labelled_image(
     :param dtype: Data type of the returned image tensor.
     :return: A tuple containing the generated image tensor and it's label.
     """
-    # TODO:
-    #  Implement according to the docstring description.
-    # ====== YOUR CODE: ======
-    raise NotImplementedError()
-    # ========================
+    image = ((high-low) * torch.rand(size=shape) + low).type(dtype)
+    label = int(torch.randint(low=low, high=num_classes-1, size=(1,)))
     return image, label
 
 
@@ -32,21 +29,12 @@ def torch_temporary_seed(seed: int):
     number generator state back to its previous state.
     :param seed: The temporary seed to set.
     """
-    # TODO:
-    #  Implement this context manager as described.
-    #  See torch.random.get/set_rng_state(), torch.random.manual_seed().
-    # ====== YOUR CODE: ======
-    raise NotImplementedError()
-    # ========================
     try:
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        state = torch.random.get_rng_state()
+        torch.random.manual_seed(seed)
         yield
     finally:
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        torch.random.set_rng_state(state)
 
 
 class RandomImageDataset(Dataset):
@@ -81,9 +69,12 @@ class RandomImageDataset(Dataset):
         #  same index (make it deterministic per index), but don't mess-up
         #  the random state outside this method.
         #  Raise a ValueError if the index is out of range.
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+
+        with torch_temporary_seed(index):
+            image, label = random_labelled_image(shape=self.image_dim, num_classes=self.num_classes)
+
+        return image, label
+
 
     def __len__(self):
         """
