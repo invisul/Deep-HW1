@@ -17,14 +17,8 @@ class LinearClassifier(object):
         self.n_features = n_features
         self.n_classes = n_classes
 
-        # TODO:
-        #  Create weights tensor of appropriate dimensions
-        #  Initialize it from a normal dist with zero mean and the given std.
-
-        self.weights = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        w_shp = (self.n_features, self.n_classes)  # shape of the weight matrix
+        self.weights = torch.normal(mean=torch.zeros(w_shp), std=weight_std*torch.ones(w_shp))
 
     def predict(self, x: Tensor):
         """
@@ -37,16 +31,8 @@ class LinearClassifier(object):
             class_scores: Tensor of shape (N,n_classes) with the class score
                 per sample.
         """
-
-        # TODO:
-        #  Implement linear prediction.
-        #  Calculate the score for each class using the weights and
-        #  return the class y_pred with the highest score.
-
-        y_pred, class_scores = None, None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        class_scores = x @ self.weights
+        y_pred = torch.argmax(class_scores, dim=1)
 
         return y_pred, class_scores
 
@@ -59,16 +45,9 @@ class LinearClassifier(object):
         :param y_pred: A tensor of shape (N,) containing predicted labels.
         :return: The accuracy in percent.
         """
-
-        # TODO:
-        #  calculate accuracy of prediction.
-        #  Do not use an explicit loop.
-
-        acc = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
+        assert y.shape == y_pred.shape
+        assert y.dim() == 1
+        acc = torch.sum(y == y_pred).item() / len(y)
         return acc * 100
 
     def train(

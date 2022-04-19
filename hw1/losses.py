@@ -41,8 +41,10 @@ class SVMHingeLoss(ClassifierLoss):
 
         assert x_scores.shape[0] == y.shape[0]
         assert y.dim() == 1
+        self.grad_ctx['x'] = x
+        self.grad_ctx['y'] = y
 
-        # TODO: Implement SVM loss calculation based on the hinge-loss formula.
+        # Implement SVM loss calculation based on the hinge-loss formula.
         #  Notes:
         #  - Use only basic pytorch tensor operations, no external code.
         #  - Full credit will be given only for a fully vectorized
@@ -50,15 +52,11 @@ class SVMHingeLoss(ClassifierLoss):
         #    Hint: Create a matrix M where M[i,j] is the margin-loss
         #    for sample i and class j (i.e. s_j - s_{y_i} + delta).
 
-        loss = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
-
-        # TODO: Save what you need for gradient calculation in self.grad_ctx
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        M = x_scores - x_scores[torch.arange(len(y)), y][:, None] + self.delta
+        M = torch.maximum(M, torch.zeros(M.shape))
+        self.grad_ctx['M'] = M
+        Li = torch.sum(M, dim=1) - self.delta
+        loss = torch.mean(Li)
 
         return loss
 
@@ -68,14 +66,27 @@ class SVMHingeLoss(ClassifierLoss):
         :return: The gradient, of shape (D, C).
 
         """
-        # TODO:
         #  Implement SVM loss gradient calculation
         #  Same notes as above. Hint: Use the matrix M from above, based on
         #  it create a matrix G such that X^T * G is the gradient.
 
-        grad = None
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        M = self.grad_ctx['M']
+        x = self.grad_ctx['x']
+        y = self.grad_ctx['y']
+
+        # 1) Create a sign matrix and decide if the absolute value should be zero or 1
+        G = torch.sign(M)
+
+        # 2) same the result of the elements of the correct class
+        elements_of_correct_classes = G[torch.arange(len(y)), y]
+
+        # 3) For the drivative dL_i/dw_y_i, calculate the sum of all positive elements except for the index y_i
+        G[torch.arange(len(y)), y] = torch.sum(G, dim=1) - elements_of_correct_classes
+
+        # 4) use to indices of the correct class to change the sign of relevant elements
+        G[torch.arange(len(y)), y] *= -1
+
+        # 4) calculate the gradient matrix
+        grad = (x.T @ G) / len(x)
 
         return grad
