@@ -66,10 +66,9 @@ class LinearClassifier(object):
 
         print("Training", end="")
         for epoch_idx in range(max_epochs):
-            total_correct = 0
-            average_loss = 0
+            # total_correct = 0
+            # average_loss = 0
 
-            # TODO:
             #  Implement model training loop.
             #  1. At each epoch, evaluate the model on the entire training set
             #     (batch by batch) and update the weights.
@@ -80,9 +79,35 @@ class LinearClassifier(object):
             #  4. Don't forget to add a regularization term to the loss,
             #     using the weight_decay parameter.
 
-            # ====== YOUR CODE: ======
-            raise NotImplementedError()
-            # ========================
+            # 1) evaluate on training set batch by batch, and update weights for each batch
+            total_loss = 0
+            total_accuracy = 0
+            num_iter = 0
+            for idx, (x, y) in enumerate(dl_train):
+                num_iter += 1
+                y_pred, x_scores = self.predict(x)
+                loss = loss_fn.loss(x, y, x_scores, y_pred)
+                grad = loss_fn.grad()
+                total_loss += loss
+                total_accuracy += self.evaluate_accuracy(y, y_pred)
+                self.weights -= learn_rate * (grad * loss + weight_decay * self.weights)
+
+            train_res.accuracy.append(total_accuracy / num_iter)
+            train_res.loss.append(total_loss / num_iter)
+
+            total_loss = 0
+            total_accuracy = 0
+            num_iter = 0
+            for idx, (x, y) in enumerate(dl_valid):
+                num_iter += 1
+                y_pred, x_scores = self.predict(x)
+                loss = loss_fn.loss(x, y, x_scores, y_pred)
+                total_loss += loss
+                total_accuracy += self.evaluate_accuracy(y, y_pred)
+
+            valid_res.accuracy.append(total_accuracy / num_iter)
+            valid_res.loss.append(total_loss / num_iter)
+
             print(".", end="")
 
         print("")
@@ -97,25 +122,22 @@ class LinearClassifier(object):
         :return: Tensor of shape (n_classes, C, H, W).
         """
 
-        # TODO:
         #  Convert the weights matrix into a tensor of images.
         #  The output shape should be (n_classes, C, H, W).
-
-        # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        tmp = 0
+        if has_bias:
+            tmp = self.weights[1:, :]
+        else:
+            tmp = self.weights
+        w_images = tmp.T.view(-1, *img_shape)
 
         return w_images
 
 
 def hyperparams():
-    hp = dict(weight_std=0.0, learn_rate=0.0, weight_decay=0.0)
+    hp = dict(weight_std=0.02, learn_rate=0.02, weight_decay=0.02)
 
-    # TODO:
     #  Manually tune the hyperparameters to get the training accuracy test
     #  to pass.
-    # ====== YOUR CODE: ======
-    raise NotImplementedError()
-    # ========================
 
     return hp

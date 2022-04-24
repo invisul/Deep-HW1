@@ -64,28 +64,32 @@ part2_q2 = r"""
 # Part 3 answers
 
 part3_q1 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
-"""
+The $\Delta$ parameter represents the initial margin in the soft SVM model. The difference between soft SVM and hard 
+ svm is that we allow sample classification to be inside the margin, and the $\Delta$ variable represents the penalty
+ we give for solutions inside the margin. During the training process, the margins update, and their distance change by
+ the regularization term $\lambda  ||W||^2$. The weights will be updated to minimize the penalty.
+ E.g by hypertuning $\lambda$ and updating the margins, the $\Delta$ variable becomes irrelevant during the 
+ trainig process.
+ """
 
 part3_q2 = r"""
-**Your answer:**
+1. We can essentially see that for each class, we learn a `template` which has the same size as the input images, and 
+ has positive and negative values for each pixel. The score we get for each class is by template matching between the
+ template and the input image. If the input image has a positive value at a pixel and the template has a positive value
+ at the same pixel, it will contribute to the likelihood that the image belongs to the class. If the template has a
+ negative value at this pixel, it will reduce the likelihood. If the template at this pixel is close to zero, than this
+ pixel has almost no contribution to the result.  
+ In essence, the learnt template defined areas in the images that help us to classify them into the classes.  
+ For example, we can see that the learnt template for the `1` class is indented to the right. In one of the examples in
+ the test set, the image of `1` is indented to the left and the sample is misclassified as `3`. This can hint that the
+ training set did not contain enough samples of `1` which are indented to the left, e.g the distribution of this class
+ in the training set is biased towards right-indented `1`s.
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. KNN does not have ha training process. Instead it compares the sample with all of the data it has, which is time
+ consuming, and the only parameter we can change is the number of neighbors to check.  
+ The SVM model has a compact representation of the statistics of each class in its weights, reducing inference time
+ compared to KNN. The similarity between the two models is that in both cases we look at pixel values as features and
+ we do not have any other feature extraction mechanism (both use the data as a vector of 28x28 pixels).
 
 """
 
