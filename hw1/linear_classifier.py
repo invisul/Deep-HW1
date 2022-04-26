@@ -135,7 +135,7 @@ class LinearClassifier(object):
 
 
 def hyperparams():
-    hp = dict(weight_std=0.02, learn_rate=0.02, weight_decay=0.02)
+    hp = dict(weight_std=0.00002, learn_rate=0.02, weight_decay=0.2)
 
     #  Manually tune the hyperparameters to get the training accuracy test
     #  to pass.
