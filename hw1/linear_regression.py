@@ -98,7 +98,6 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
 
     def __init__(self, degree=3):
         self.degree = degree
-        self.poly = PolynomialFeatures(degree=self.degree)
 
     def fit(self, X, y=None):
         return self
@@ -111,12 +110,16 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
         """
         X = check_array(X)
 
-        # list_of_indices_to_drop = [3, 8, 11, 13]
-        list_of_indices_to_drop = [3, 6, 7, 8, 11, 13]
-        indices_mask = [True if ii in list_of_indices_to_drop else False for ii in range(X.shape[1])]
-        X_dropped = X[:, indices_mask]
-        X_poly = self.poly.fit_transform(X_dropped)
+        tmp = PolynomialFeatures(self.degree)
 
+        list_of_indices_to_drop = [3, 8, 11]
+        indices_mask = [False if ii in list_of_indices_to_drop else True for ii in range(X.shape[1])]
+        X_dropped = X[:, indices_mask]
+        # X_poly = self.poly.fit_transform(X_dropped)
+
+        X_dropped = check_array(X_dropped)
+
+        X_poly = tmp.fit_transform(X_dropped)
         X_transformed = X_poly
         return X_transformed
 
